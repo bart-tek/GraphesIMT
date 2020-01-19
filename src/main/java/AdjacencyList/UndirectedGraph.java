@@ -73,21 +73,23 @@ public class UndirectedGraph<A extends UndirectedNode> extends AbstractListGraph
 
     @Override
     public boolean isEdge(A x, A y) {    
-        // A completer
-    	return true;
+
+    	return getNodeOfList(x).getNeighbours().containsKey(getNodeOfList(y)) && getNodeOfList(y).getNeighbours().containsKey(getNodeOfList(x));
     }
 
     @Override
     public void removeEdge(A x, A y) {
     	if(isEdge(x,y)){
-    		// A completer
+    		getNodeOfList(x).getNeighbours().remove(getNodeOfList(y));
+    		getNodeOfList(y).getNeighbours().remove(getNodeOfList(x));
     	}
     }
 
     @Override
     public void addEdge(A x, A y) {
     	if(!isEdge(x,y)){
-    		// A completer
+    		getNodeOfList(x).addNeigh(getNodeOfList(y), getNodeOfList(y).getLabel());
+    		getNodeOfList(y).addNeigh(getNodeOfList(x), getNodeOfList(x).getLabel());
     	}
     }
 
@@ -118,7 +120,13 @@ public class UndirectedGraph<A extends UndirectedNode> extends AbstractListGraph
     @Override
     public int[][] toAdjacencyMatrix() {
         int[][] matrix = new int[order][order];
-        // A completer
+
+        for (A node : this.getNodes()) {
+        	for (UndirectedNode neigh : node.getNeighbours().keySet()) {
+        		matrix[node.getLabel()][neigh.getLabel()]++;
+        	}
+        }
+        
         return matrix;
     }
 
@@ -136,12 +144,29 @@ public class UndirectedGraph<A extends UndirectedNode> extends AbstractListGraph
         return s.toString();
     }
 
-    public static void main(String[] args) {
+    @SuppressWarnings("unchecked")
+	public static void main(String[] args) {
         int[][] mat = GraphTools.generateGraphData(10, 20, false, true, false, 100001);
         GraphTools.afficherMatrix(mat);
-        UndirectedGraph al = new UndirectedGraph(mat);
+        @SuppressWarnings("rawtypes")
+		UndirectedGraph al = new UndirectedGraph(mat);
         System.out.println(al);
-        // A completer
+
+        System.out.println("isEdge(0,3) (true) : " + al.isEdge(new UndirectedNode(0), new UndirectedNode(3)));
+        System.out.println("isEdge(3,0) (true) : " + al.isEdge(new UndirectedNode(3), new UndirectedNode(0)));
+        System.out.println("isEdge(0,5) (false) : " + al.isEdge(new UndirectedNode(0), new UndirectedNode(5)));
+
+        al.addEdge(new UndirectedNode(0), new UndirectedNode(5));
+        al.addEdge(new UndirectedNode(5), new UndirectedNode(0));
+        System.out.println("addEdge(0,5) (true) : " + al.isEdge(new UndirectedNode(0), new UndirectedNode(5)));
+        System.out.println("addEdge(5,0) (true) : " + al.isEdge(new UndirectedNode(5), new UndirectedNode(0)));
+        
+        GraphTools.afficherMatrix(al.toAdjacencyMatrix());
+        
+        al.removeEdge(new UndirectedNode(0), new UndirectedNode(5));
+        System.out.println("removeEdge(0,5) (false) : " + al.isEdge(new UndirectedNode(0), new UndirectedNode(5)));
+        
+        GraphTools.afficherMatrix(al.toAdjacencyMatrix());
     }
 
 }

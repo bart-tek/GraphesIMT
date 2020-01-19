@@ -4,7 +4,9 @@ import Abstraction.AbstractMatrixGraph;
 import GraphAlgorithms.GraphTools;
 import Nodes.AbstractNode;
 import Nodes.DirectedNode;
+import Nodes.UndirectedNode;
 import Abstraction.IDirectedGraph;
+import AdjacencyList.DirectedGraph;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,8 +78,7 @@ public class AdjacencyMatrixDirectedGraph extends AbstractMatrixGraph<DirectedNo
 	
 	@Override
 	public boolean isArc(AbstractNode from, AbstractNode to) {
-		// A completer
-		return true;
+		return matrix[from.getLabel()][to.getLabel()] > 0;
 	}
 
 	/**
@@ -85,7 +86,9 @@ public class AdjacencyMatrixDirectedGraph extends AbstractMatrixGraph<DirectedNo
 	 */
 	@Override
 	public void removeArc(AbstractNode from, AbstractNode to) {
-		// A completer
+		if (isArc(from,to)) {			
+			matrix[from.getLabel()][to.getLabel()]--;
+		}
 	}
 
 	/**
@@ -93,7 +96,7 @@ public class AdjacencyMatrixDirectedGraph extends AbstractMatrixGraph<DirectedNo
 	 */
 	@Override
 	public void addArc(AbstractNode from, AbstractNode to) {
-		// A completer
+		matrix[from.getLabel()][to.getLabel()]++;
 	}
 
 
@@ -106,8 +109,17 @@ public class AdjacencyMatrixDirectedGraph extends AbstractMatrixGraph<DirectedNo
 
 	@Override
 	public IDirectedGraph<DirectedNode> computeInverse() {
-		// A completer
-		return null;
+		
+		int[][] ret = new int[order][order];
+		
+		for (int i = 0 ; i < order ; i++)  {
+			for (int j = 0 ; j < order ; i++)  {
+				ret[j][i] = matrix[i][j];
+			}
+		}
+		
+		
+		return new AdjacencyMatrixDirectedGraph(ret);
 	}
 
 	@Override
@@ -124,6 +136,7 @@ public class AdjacencyMatrixDirectedGraph extends AbstractMatrixGraph<DirectedNo
 	}
 
 	public static void main(String[] args) {
+		
 		int[][] matrix2 = GraphTools.generateGraphData(10, 20, false, false, false, 100001);
 		AdjacencyMatrixDirectedGraph am = new AdjacencyMatrixDirectedGraph(matrix2);
 		System.out.println(am);
@@ -136,6 +149,25 @@ public class AdjacencyMatrixDirectedGraph extends AbstractMatrixGraph<DirectedNo
 		for (Integer integer : t2) {
 			System.out.print(integer + ", ");
 		}
-		// A completer
+		
+		System.out.println("\nisArc(2,5) : " + am.isArc(new UndirectedNode(2), new UndirectedNode(3)));
+		System.out.println("isArc(3,0) : " + am.isArc(new UndirectedNode(3), new UndirectedNode(0))); 
+		
+		am.addArc(new UndirectedNode(3), new UndirectedNode(0));
+		System.out.println("addArc(3,0) : " + am.isArc(new UndirectedNode(3), new UndirectedNode(0)));
+		
+		am.addArc(new UndirectedNode(3), new UndirectedNode(0));
+		System.out.println("addArc(3,0) (doit être à 2) : ");
+		System.out.println(am);
+		
+		am.removeArc(new UndirectedNode(2), new UndirectedNode(5));
+		System.out.println("removeArc(2,5) : " + am.isArc(new UndirectedNode(2), new UndirectedNode(5)));
+		
+		am.removeArc(new UndirectedNode(3), new UndirectedNode(0));
+		System.out.println("removeArc(3,0) : " + am.isArc(new UndirectedNode(3), new UndirectedNode(0)));
+		
+		am.removeArc(new UndirectedNode(3), new UndirectedNode(0));
+		System.out.println("removeArc(3,0) : " + am.isArc(new UndirectedNode(3), new UndirectedNode(0)));
+		
 	}
 }

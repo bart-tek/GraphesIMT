@@ -67,8 +67,7 @@ public class AdjacencyMatrixUndirectedGraph extends AbstractMatrixGraph<Undirect
 	
 	@Override
 	public boolean isEdge(AbstractNode x, AbstractNode y) {
-		// A completer
-		return true;		
+		return matrix[x.getLabel()][y.getLabel()] > 0 && matrix[y.getLabel()][x.getLabel()] > 0;		
 	}
 	
 	/**
@@ -76,7 +75,10 @@ public class AdjacencyMatrixUndirectedGraph extends AbstractMatrixGraph<Undirect
      */
 	@Override
 	public void removeEdge(AbstractNode x, AbstractNode y) {
-		// A completer
+		if (isEdge(x,y)) {			
+			matrix[x.getLabel()][y.getLabel()]--;
+			matrix[y.getLabel()][x.getLabel()]--;
+		}
 	}
 
 	/**
@@ -84,7 +86,8 @@ public class AdjacencyMatrixUndirectedGraph extends AbstractMatrixGraph<Undirect
      */
 	@Override
 	public void addEdge(AbstractNode x, AbstractNode y) {
-		// A completer
+		matrix[x.getLabel()][y.getLabel()]++;
+		matrix[y.getLabel()][x.getLabel()]++;
 	}
 
 	
@@ -118,6 +121,25 @@ public class AdjacencyMatrixUndirectedGraph extends AbstractMatrixGraph<Undirect
 		for (Integer integer : t2) {
 			System.out.print(integer + ", ");
 		}
-		// A completer
+
+		System.out.println("\nisEdge(0,1) : " + am.isEdge(new UndirectedNode(2), new UndirectedNode(3)));
+		System.out.println("isEdge(3,0) : " + am.isEdge(new UndirectedNode(3), new UndirectedNode(0))); 
+		
+		am.addEdge(new UndirectedNode(3), new UndirectedNode(0));
+		System.out.println("addEdge(3,0) : " + am.isEdge(new UndirectedNode(3), new UndirectedNode(0)));
+		
+		am.addEdge(new UndirectedNode(3), new UndirectedNode(0));
+		System.out.println("addEdge(3,0) (doit être à 3) : ");
+		System.out.println(am);
+		
+		am.removeEdge(new UndirectedNode(0), new UndirectedNode(1));
+		System.out.println("removeEdge(0,1) : " + am.isEdge(new UndirectedNode(2), new UndirectedNode(5)));
+		
+		am.removeEdge(new UndirectedNode(3), new UndirectedNode(0));
+		System.out.println("removeEdge(3,0) : " + am.isEdge(new UndirectedNode(3), new UndirectedNode(0)));
+		
+		am.removeEdge(new UndirectedNode(3), new UndirectedNode(0));
+		System.out.println("removeEdge(3,0) : " + am.isEdge(new UndirectedNode(3), new UndirectedNode(0)));
+	
 	}
 }

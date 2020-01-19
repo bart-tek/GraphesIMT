@@ -4,6 +4,7 @@ import java.util.ArrayList;
 
 import GraphAlgorithms.GraphTools;
 import Nodes.DirectedNode;
+import Nodes.UndirectedNode;
 
 public class DirectedValuedGraph extends DirectedGraph<DirectedNode> {
 
@@ -39,7 +40,10 @@ public class DirectedValuedGraph extends DirectedGraph<DirectedNode> {
      * Adds the arc (from,to) with cost  if it is not already present in the graph
      */
     public void addArc(DirectedNode from, DirectedNode to, int cost) {
-    	// A completer      
+    	 if(!isArc(from,to)){
+    		 getNodeOfList(from).addPred(getNodeOfList(from), cost);
+    		 getNodeOfList(from).addSucc(getNodeOfList(to), cost);
+    	 }
     }
     
     @Override
@@ -64,7 +68,10 @@ public class DirectedValuedGraph extends DirectedGraph<DirectedNode> {
         GraphTools.afficherMatrix(matrixValued);
         DirectedValuedGraph al = new DirectedValuedGraph(matrixValued);
         System.out.println(al);
-        // A completer
+
+        al.addArc(new DirectedNode(0), new DirectedNode(1), 76);
+        GraphTools.afficherMatrix(al.toAdjacencyMatrix());
+        System.out.println(al);
     }
 	
 }

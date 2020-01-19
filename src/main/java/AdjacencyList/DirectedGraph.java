@@ -6,6 +6,7 @@ import java.util.Map;
 import Abstraction.AbstractListGraph;
 import GraphAlgorithms.GraphTools;
 import Nodes.DirectedNode;
+import Nodes.UndirectedNode;
 import Abstraction.IDirectedGraph;
 
 public class DirectedGraph<A extends DirectedNode> extends AbstractListGraph<A> implements IDirectedGraph<A> {
@@ -69,18 +70,27 @@ public class DirectedGraph<A extends DirectedNode> extends AbstractListGraph<A> 
 
     @Override
     public boolean isArc(A from, A to) {
-    	// A completer
-    	return false;
+    	return getNodeOfList(from).getSuccs().containsKey(getNodeOfList(to)) && getNodeOfList(to).getPreds().containsKey(getNodeOfList(from));
     }
 
     @Override
     public void removeArc(A from, A to) {
-    	// A completer
+
+    	if(isArc(from,to)){
+    		getNodeOfList(from).getSuccs().remove(getNodeOfList(to));
+    		getNodeOfList(to).getPreds().remove(getNodeOfList(from));
+    	}
+    	
     }
 
     @Override
     public void addArc(A from, A to) {
-    	// A completer
+
+    	if(!isArc(from,to)){
+    		getNodeOfList(from).addSucc(getNodeOfList(to), getNodeOfList(to).getLabel());
+    		getNodeOfList(to).addPred(getNodeOfList(from), getNodeOfList(from).getLabel());
+    	}
+    
     }
 
     //--------------------------------------------------
@@ -121,8 +131,18 @@ public class DirectedGraph<A extends DirectedNode> extends AbstractListGraph<A> 
 
     @Override
     public IDirectedGraph computeInverse() {
-        DirectedGraph<A> g = new DirectedGraph<>(this);
-        // A completer
+        
+    	int[][] matrix = new int[order][order];
+    	
+    	DirectedGraph<A> g = new DirectedGraph<>(matrix);
+    	
+        for (int i = 0; i < order; i++) {
+            for (DirectedNode j : nodes.get(i).getSuccs().keySet()) {
+            	if (isArc(getNodeOfList((A) new DirectedNode(i)), getNodeOfList((A) j))) {
+            		g.addArc(g.getNodeOfList((A) j), g.getNodeOfList((A) new DirectedNode(i)));
+            	}
+            }
+        }
         return g;
     }
     
@@ -145,6 +165,12 @@ public class DirectedGraph<A extends DirectedNode> extends AbstractListGraph<A> 
         GraphTools.afficherMatrix(Matrix);
         DirectedGraph al = new DirectedGraph(Matrix);
         System.out.println(al);
-        // A completer
+
+        GraphTools.afficherMatrix(al.toAdjacencyMatrix());
+        GraphTools.afficherMatrix(al.computeInverse().toAdjacencyMatrix());
+        
+        System.out.println(al.computeInverse());
+        
+        
     }
 }

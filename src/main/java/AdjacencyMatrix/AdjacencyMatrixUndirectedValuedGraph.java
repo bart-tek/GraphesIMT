@@ -56,7 +56,10 @@ public class AdjacencyMatrixUndirectedValuedGraph extends AdjacencyMatrixUndirec
 	@Override
 	public void removeEdge(AbstractNode x, AbstractNode y) {
 		super.removeEdge(x, y);
-		// A completer
+		if (!isEdge(x, y)) {
+			this.matrixCosts[x.getLabel()][y.getLabel()] = 0;
+			this.matrixCosts[y.getLabel()][x.getLabel()] = 0;
+		}
 	}
 
 	/**
@@ -64,7 +67,10 @@ public class AdjacencyMatrixUndirectedValuedGraph extends AdjacencyMatrixUndirec
      */
 	public void addEdge(AbstractNode x, AbstractNode y, int cost ) {
 		super.addEdge(x,y);
-		// A completer
+		if (this.matrixCosts[x.getLabel()][y.getLabel()] == 0) {
+			this.matrixCosts[x.getLabel()][y.getLabel()] =cost;
+			this.matrixCosts[y.getLabel()][x.getLabel()] =cost;
+		}
 	}
 	
 	public String toString() {
@@ -86,7 +92,19 @@ public class AdjacencyMatrixUndirectedValuedGraph extends AdjacencyMatrixUndirec
 		GraphTools.afficherMatrix(matrix);
 		AdjacencyMatrixUndirectedValuedGraph am = new AdjacencyMatrixUndirectedValuedGraph(matrix, matrixValued);
 		System.out.println(am);
-		// A completer
+		
+		am.removeEdge(new UndirectedNode(7), new UndirectedNode(0));
+		System.out.println(am);
+
+		am.addEdge(new UndirectedNode(0), new UndirectedNode(1), 75);
+		System.out.println(am);
+		
+		am.addEdge(new UndirectedNode(0), new UndirectedNode(1), 10);
+		System.out.println(am);
+		
+		am.removeEdge(new UndirectedNode(0), new UndirectedNode(1));
+		am.removeEdge(new UndirectedNode(0), new UndirectedNode(1));
+		System.out.println(am);
 	}
 
 }

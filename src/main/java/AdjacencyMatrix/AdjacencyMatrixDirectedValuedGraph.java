@@ -3,6 +3,7 @@ package AdjacencyMatrix;
 import GraphAlgorithms.GraphTools;
 import Nodes.AbstractNode;
 import Nodes.DirectedNode;
+import Nodes.UndirectedNode;
 
 public class AdjacencyMatrixDirectedValuedGraph extends AdjacencyMatrixDirectedGraph {
 
@@ -53,7 +54,9 @@ public class AdjacencyMatrixDirectedValuedGraph extends AdjacencyMatrixDirectedG
 	@Override
 	public void removeArc(AbstractNode from, AbstractNode to) {
 		super.removeArc(from, to);
-		// A completer
+		if (!isArc(from, to)) {
+			this.matrixCosts[from.getLabel()][to.getLabel()] = 0;
+		}
 	}
 
 	/**
@@ -61,8 +64,9 @@ public class AdjacencyMatrixDirectedValuedGraph extends AdjacencyMatrixDirectedG
      */
 	public void addArc(AbstractNode from, AbstractNode to, int cost ) {
 		super.addArc(from,to);
-		// A completer
-	}
+		if (this.matrixCosts[from.getLabel()][to.getLabel()] == 0) {
+			this.matrixCosts[from.getLabel()][to.getLabel()] =cost;
+		}	}
 	
 	public String toString() {
 		StringBuilder s = new StringBuilder(super.toString() + "\n Matrix of Costs: \n");
@@ -81,6 +85,18 @@ public class AdjacencyMatrixDirectedValuedGraph extends AdjacencyMatrixDirectedG
         int[][] matrixValued = GraphTools.generateValuedGraphData(10, false, false, true, false, 100001);
 		AdjacencyMatrixDirectedValuedGraph am = new AdjacencyMatrixDirectedValuedGraph(matrix, matrixValued);
 		System.out.println(am);
-		// A completer
+
+		am.removeArc(new DirectedNode(0), new DirectedNode(3));
+		System.out.println(am);
+
+		am.addArc(new DirectedNode(0), new DirectedNode(1), 75);
+		System.out.println(am);
+		
+		am.addArc(new DirectedNode(0), new DirectedNode(1), 10);
+		System.out.println(am);
+		
+		am.removeArc(new DirectedNode(0), new DirectedNode(1));
+		am.removeArc(new DirectedNode(0), new DirectedNode(1));
+		System.out.println(am);
 	}
 }
