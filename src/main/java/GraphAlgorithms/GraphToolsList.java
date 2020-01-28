@@ -56,13 +56,17 @@ public class GraphToolsList extends GraphTools {
 		fin[node.getLabel()] = cpt;
 	}
 
-	public void explorerUndirectedSommet(UndirectedNode node, Set<UndirectedNode> visitedNodes) {
-		visitedNodes.add(node);
+	public void explorerUndirectedSommet(UndirectedNode node) {
+		debut[node.getLabel()] = cpt;
+		visite[node.getLabel()] = 1;
+		cpt++;
 		for (UndirectedNode next : node.getNeighbours().keySet()) {
 			if (!visitedNodes.contains(next)) {
 				explorerUndirectedSommet(next, visitedNodes);
 			}
 		}
+		visite[node.getLabel()] = 2;
+		fin[node.getLabel()] = cpt;
 	}
 
 	// Calcule les composantes connexes du graphe
@@ -96,29 +100,36 @@ public class GraphToolsList extends GraphTools {
 		}
 	}
 
-	void explorerGrapheProfondeur(AbstractListGraph<AbstractNode> g) {
-
-		AbstractNode first = g.getNodes().get(0); // Vérification du type de graphe
-
+	void explorerGrapheProfondeur(AbstractListGraph<AbstractNode> g, int[] nodes) {
 		debut = new int[g.getNbNodes()];
 		visite = new int[g.getNbNodes()];
 		fin = new int[g.getNbNodes()];
 		cpt = 0;
-
+		AbstractNode first = nodes[0]; // Vérification du type de graphe
 		if (first instanceof DirectedNode) {
-			for (AbstractNode s : g.getNodes()) {
-				if (!atteint.contains(s)) {
+			for (int i : nodes) {
+				if (visite[i] == 0) {
 					explorerDirectedSommet((DirectedNode) s, atteint);
 				}
 			}
 		} else {
-			Set<UndirectedNode> atteint = new HashSet<UndirectedNode>();
-			for (AbstractNode s : g.getNodes()) {
-				if (!atteint.contains(s)) {
+			for (int i : nodes) {
+				if (visite[i] == 0) {
 					explorerUndirectedSommet((UndirectedNode) s, atteint);
 				}
 			}
 		}
+	}
+
+	public void calculComposanteFortementConnexe(AbstractListGraph<AbstractNode> g) {
+		if (g instanceof DirectedGraph) {
+			int[] nodes = new int[g.getNbNodes()];
+			explorerGrapheProfondeur(g, nodes);
+			int[] f1 = fin;
+			DirectedGraph<DirectedNode> gInverse = ((DirectedGraph) g).computeInverse();
+
+		}
+
 	}
 
 	public static void main(String[] args) {
