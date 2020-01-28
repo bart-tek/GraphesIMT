@@ -17,44 +17,43 @@ import Nodes.AbstractNode;
 import Nodes.DirectedNode;
 import Nodes.UndirectedNode;
 
-public class GraphToolsList  extends GraphTools {
+public class GraphToolsList extends GraphTools {
 
-	private static int _DEBBUG =0;
+	private static int _DEBBUG = 0;
 
 	private static int[] visite;
 	private static int[] debut;
 	private static int[] fin;
 	private static List<Integer> order_CC;
-	private static int cpt=0;
+	private static int cpt = 0;
 
-	//--------------------------------------------------
-	// 				Constructors
-	//--------------------------------------------------
+	// --------------------------------------------------
+	// Constructors
+	// --------------------------------------------------
 
-	public GraphToolsList(){
+	public GraphToolsList() {
 		super();
 	}
 
 	// ------------------------------------------
-	// 				Accessors
+	// Accessors
 	// ------------------------------------------
 
-
-
 	// ------------------------------------------
-	// 				Methods
+	// Methods
 	// ------------------------------------------
-	
+
 	public void explorerDirectedSommet(DirectedNode node) {
-		
+		cpt++;
 		debut[node.getLabel()] = cpt;
-		visite[node.getLabel()]
-		
+		visite[node.getLabel()] = 1;
 		for (DirectedNode next : node.getSuccs().keySet()) {
 			if (!visitedNodes.contains(next)) {
 				explorerDirectedSommet(next, visitedNodes);
 			}
 		}
+		visite[node.getLabel()] = 2;
+		fin[node.getLabel()] = cpt;
 	}
 
 	public void explorerUndirectedSommet(UndirectedNode node, Set<UndirectedNode> visitedNodes) {
@@ -67,25 +66,24 @@ public class GraphToolsList  extends GraphTools {
 	}
 
 	void explorerGrapheProfondeur(AbstractListGraph<AbstractNode> g) {
-		
+
 		AbstractNode first = g.getNodes().get(0); // Vérification du type de graphe
 
 		debut = new int[g.getNbNodes()];
 		visite = new int[g.getNbNodes()];
 		fin = new int[g.getNbNodes()];
-		
+
 		if (first instanceof DirectedNode) {
 			for (AbstractNode s : g.getNodes()) {
 				if (!atteint.contains(s)) {
-					explorerDirectedSommet((DirectedNode)s, atteint);
+					explorerDirectedSommet((DirectedNode) s, atteint);
 				}
 			}
-		}
-		else {
+		} else {
 			Set<UndirectedNode> atteint = new HashSet<UndirectedNode>();
-			for (AbstractNode s : g.getNodes()) {        
+			for (AbstractNode s : g.getNodes()) {
 				if (!atteint.contains(s)) {
-					explorerUndirectedSommet((UndirectedNode)s, atteint);
+					explorerUndirectedSommet((UndirectedNode) s, atteint);
 				}
 			}
 		}
