@@ -44,9 +44,9 @@ public class GraphToolsList extends GraphTools {
 	// ------------------------------------------
 
 	public void explorerDirectedSommet(DirectedNode node) {
-		cpt++;
 		debut[node.getLabel()] = cpt;
 		visite[node.getLabel()] = 1;
+		cpt++;
 		for (DirectedNode next : node.getSuccs().keySet()) {
 			if (!visitedNodes.contains(next)) {
 				explorerDirectedSommet(next, visitedNodes);
@@ -65,6 +65,37 @@ public class GraphToolsList extends GraphTools {
 		}
 	}
 
+	// Calcule les composantes connexes du graphe
+	public void explorerGrapheLargeur(AbstractListGraph<AbstractNode> graph, AbstractNode s) {
+		boolean mark[] = new boolean[graph.getNbNodes()];
+
+		for (AbstractNode v : graph.getNodes()) {
+			mark[v.getLabel()] = false;
+		}
+		mark[s.getLabel()] = true;
+
+		Queue<AbstractNode> toVisit = new PriorityQueue<AbstractNode>();
+		toVisit.add(s);
+		while (!toVisit.isEmpty()) {
+			AbstractNode v = toVisit.poll();
+			if (s instanceof DirectedNode) {
+				for (DirectedNode w : ((DirectedNode) v).getSuccs().keySet()) {
+					if (!mark[w.getLabel()]) {
+						mark[w.getLabel()] = true;
+						toVisit.add(w);
+					}
+				}
+			} else {
+				for (UndirectedNode w : ((UndirectedNode) v).getNeighbours().keySet()) {
+					if (!mark[w.getLabel()]) {
+						mark[w.getLabel()] = true;
+						toVisit.add(w);
+					}
+				}
+			}
+		}
+	}
+
 	void explorerGrapheProfondeur(AbstractListGraph<AbstractNode> g) {
 
 		AbstractNode first = g.getNodes().get(0); // Vérification du type de graphe
@@ -72,6 +103,7 @@ public class GraphToolsList extends GraphTools {
 		debut = new int[g.getNbNodes()];
 		visite = new int[g.getNbNodes()];
 		fin = new int[g.getNbNodes()];
+		cpt = 0;
 
 		if (first instanceof DirectedNode) {
 			for (AbstractNode s : g.getNodes()) {
@@ -92,9 +124,7 @@ public class GraphToolsList extends GraphTools {
 	public static void main(String[] args) {
 		int[][] Matrix = GraphTools.generateGraphData(10, 20, false, false, true, 100001);
 		GraphTools.afficherMatrix(Matrix);
-		DirectedGraph<DirectedNode> al = new DirectedGraph<>(Matrix);
+		AbstractListGraph<AbstractNode> al = new DirectedGraph<>(Matrix);
 		System.out.println(al);
-
-		// A completer
 	}
 }
