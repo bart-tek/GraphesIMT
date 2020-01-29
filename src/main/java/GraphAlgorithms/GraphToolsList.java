@@ -48,8 +48,8 @@ public class GraphToolsList extends GraphTools {
 		visite[node.getLabel()] = 1;
 		cpt++;
 		for (DirectedNode next : node.getSuccs().keySet()) {
-			if (!visitedNodes.contains(next)) {
-				explorerDirectedSommet(next, visitedNodes);
+			if (visite[next.getLabel()] == 0) {
+				explorerDirectedSommet(next);
 			}
 		}
 		visite[node.getLabel()] = 2;
@@ -61,8 +61,8 @@ public class GraphToolsList extends GraphTools {
 		visite[node.getLabel()] = 1;
 		cpt++;
 		for (UndirectedNode next : node.getNeighbours().keySet()) {
-			if (!visitedNodes.contains(next)) {
-				explorerUndirectedSommet(next, visitedNodes);
+			if (visite[next.getLabel()] == 0) {
+				explorerUndirectedSommet(next);
 			}
 		}
 		visite[node.getLabel()] = 2;
