@@ -1,10 +1,15 @@
 package GraphAlgorithms;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
+import java.util.PriorityQueue;
+import java.util.Queue;
 import java.util.Set;
+import java.util.SortedMap;
+import java.util.TreeMap;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
 
@@ -105,17 +110,17 @@ public class GraphToolsList extends GraphTools {
 		visite = new int[g.getNbNodes()];
 		fin = new int[g.getNbNodes()];
 		cpt = 0;
-		AbstractNode first = nodes[0]; // Vérification du type de graphe
+		AbstractNode first = g.getNodes().get(0); // Vérification du type de graphe
 		if (first instanceof DirectedNode) {
 			for (int i : nodes) {
 				if (visite[i] == 0) {
-					explorerDirectedSommet((DirectedNode) s, atteint);
+					explorerDirectedSommet((DirectedNode) g.getNodes().get(i));
 				}
 			}
 		} else {
 			for (int i : nodes) {
 				if (visite[i] == 0) {
-					explorerUndirectedSommet((UndirectedNode) s, atteint);
+					explorerUndirectedSommet((UndirectedNode) g.getNodes().get(i));
 				}
 			}
 		}
@@ -124,10 +129,29 @@ public class GraphToolsList extends GraphTools {
 	public void calculComposanteFortementConnexe(AbstractListGraph<AbstractNode> g) {
 		if (g instanceof DirectedGraph) {
 			int[] nodes = new int[g.getNbNodes()];
+			
+			for (AbstractNode n : g.getNodes()) {
+				nodes[n.getLabel()] = n.getLabel();
+			}
+			
 			explorerGrapheProfondeur(g, nodes);
 			int[] f1 = fin;
-			DirectedGraph<DirectedNode> gInverse = ((DirectedGraph) g).computeInverse();
+			SortedMap<Integer, Integer> nodesEnd = new TreeMap<>();
+			for (int i = 0; i < f1.length; i++) {
+				nodesEnd.put(f1[i], i);
+			}
+			List<Integer> f1sorted = (List<Integer>) nodesEnd.values();
 
+			Collections.reverse(f1sorted);
+			
+			int[] f1SortedTab = new int[f1sorted.size()];
+			
+			for (int i = 0 ; i < f1sorted.size() ; i++) {
+				f1SortedTab[i] = f1sorted.get(i);
+			}
+
+			DirectedGraph<DirectedNode> gInverse = (DirectedGraph<DirectedNode>) ((DirectedGraph) g).computeInverse();
+			explorerGrapheProfondeur((AbstractListGraph) gInverse, f1SortedTab);
 		}
 
 	}
@@ -135,7 +159,7 @@ public class GraphToolsList extends GraphTools {
 	public static void main(String[] args) {
 		int[][] Matrix = GraphTools.generateGraphData(10, 20, false, false, true, 100001);
 		GraphTools.afficherMatrix(Matrix);
-		AbstractListGraph<AbstractNode> al = new DirectedGraph<>(Matrix);
+		AbstractListGraph<AbstractNode> al = new DirectedGraph(Matrix);
 		System.out.println(al);
 	}
 }
