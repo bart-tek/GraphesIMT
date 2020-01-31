@@ -26,14 +26,66 @@ public class BinaryHeap {
     public boolean isEmpty() {
         return pos == 0;
     }
-
+    
+    /** Dans le pire des cas, on doit remonter tout l'arbre pour insérer l'élément ce qui a une complexité en O(log2 n).
+     * Si il y a besoin de resize le tableau, on passe en O(n) à cause de la copie du tableau.
+     *
+     * @param element
+     */
     public void insert(int element) {
-    	// A completer
+    	
+    	boolean isInserted = false;
+
+    	if (pos < nodes.length) {
+    		nodes[pos] = element;
+    	}
+    	else {
+    		resize();
+    		nodes[pos] = element;
+    	}
+    	
+    	int i = pos;
+    	
+    	while (!isInserted && ((i-1) / 2) >= 0) {
+    		if (nodes[(i-1)/2] > element) {
+    			swap(i, (i-1)/2);
+    			i = (i-1)/2;
+    		}
+    		else {
+    			isInserted = true;
+    		}
+    	}
+    	
+    	pos++;
     }
 
+    /**
+     * On parcourt une seule branche du tableau pour remettre la valeur du dernier noeud au bon endroit, donc c'est du O(log2 n).
+     * @return
+     */
     public int remove() {
-    	// A completer
-    	return 0;
+
+    	int ret = nodes[0];
+    	nodes[0] = nodes[pos - 1];
+    	pos--;
+    	
+    	boolean isInserted = false;
+    	int i = 0;
+    	
+    	while(!isInserted && i < pos) {
+    		if (nodes[2*i+1] < nodes[i]) {
+    			swap(i, 2*i+1);
+    			i = 2*i+1;
+    		}
+    		else if (nodes[2*i+2] < nodes[i]) {
+    			swap(i, 2*i+2);
+    			i = 2*i+2;
+    		} 
+    		else {
+    			isInserted = true;
+    		}
+    	}
+    	return ret;
     }
 
     private int getBestChildPos(int src) {
@@ -53,8 +105,7 @@ public class BinaryHeap {
 	 * 
 	 */	
     private boolean isLeaf(int src) {
-    	// A completer
-    	return false;
+    	return 2*src+1 > pos;
     }
 
     private void swap(int father, int child) {
@@ -70,7 +121,7 @@ public class BinaryHeap {
         }
         return s.toString();
     }
-
+    
     /**
 	 * Recursive test to check the validity of the binary heap
 	 * 
@@ -104,7 +155,7 @@ public class BinaryHeap {
         int max = 20;
         while (k > 0) {
             int rand = min + (int) (Math.random() * ((max - min) + 1));
-            System.out.print("insert " + rand);
+            System.out.print("insert " + rand + " | ");
             jarjarBin.insert(rand);            
             k--;
         }

@@ -64,8 +64,7 @@ public class BinaryHeapEdge<A> {
     }
 
     private boolean isLeaf(int src) {
-    	// A completer
-    	return false;
+    	return binh.get(2*src+1) == null;
     }
 
     
