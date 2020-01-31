@@ -30,7 +30,23 @@ public class BinaryHeapEdge<A> {
 	 * @param val the edge weight
 	 */
     public void insert(A from, A to, int val) {
-    	// To complete
+    	
+    	boolean isInserted = false;
+    	Triple<A,A,Integer> newVal = new Triple<>(from, to, val); 
+    	
+    	binh.add(newVal);
+    	
+    	int i = binh.size()-1;
+    	
+    	while (!isInserted && ((i-1) / 2) >= 0) {
+    		if (binh.get((i-1)/2).getThird() > val) {
+    			swap(i, (i-1)/2);
+    			i = (i-1)/2;
+    		}
+    		else {
+    			isInserted = true;
+    		}
+    	}
     }
 
     
@@ -41,9 +57,28 @@ public class BinaryHeapEdge<A> {
 	 * 
 	 */
     public Triple<A,A,Integer> remove() {
-    	// To complete
-    	return null;
-        
+    	
+    	boolean isInserted = false;
+    	Triple<A,A,Integer> ret = binh.get(0);
+    	swap(0, binh.size()-1);
+    	binh.remove(binh.size()-1);
+    	
+    	int i = 0;
+    	
+    	while(!isInserted && !isLeaf(i)) {
+    		if (binh.get(2*i+1).getThird() < binh.get(i).getThird() && binh.get(2*i+1).getThird() <= binh.get(2*i+2).getThird()) {
+    			swap(i, 2*i+1);
+    			i = 2*i+1;
+    		}
+    		else if (binh.get(2*i+2).getThird() < binh.get(i).getThird() && binh.get(2*i+2).getThird() <= binh.get(2*i+1).getThird()) {
+    			swap(i, 2*i+2);
+    			i = 2*i+2;
+    		} 
+    		else {
+    			isInserted = true;
+    		}
+    	}
+    	return ret;
     }
     
 
@@ -64,7 +99,7 @@ public class BinaryHeapEdge<A> {
     }
 
     private boolean isLeaf(int src) {
-    	return binh.get(2*src+1) == null;
+    	return 2*src+1 >= binh.size();
     }
 
     
@@ -169,8 +204,14 @@ public class BinaryHeapEdge<A> {
             jarjarBin.insert(new DirectedNode(k), new DirectedNode(k+30), rand);            
             k--;
         }
-        // A completer
         
+        System.out.println("\nInsert");
+        jarjarBin.lovelyPrinting();
+        System.out.println(jarjarBin.test());
+        
+        System.out.println("\nRemove");
+        jarjarBin.remove();
+        jarjarBin.lovelyPrinting();
         System.out.println(jarjarBin.test());
     }
 

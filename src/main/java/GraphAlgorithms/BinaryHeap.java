@@ -1,5 +1,6 @@
 package GraphAlgorithms;
 
+import java.util.Arrays;
 
 public class BinaryHeap {
 
@@ -72,12 +73,12 @@ public class BinaryHeap {
     	boolean isInserted = false;
     	int i = 0;
     	
-    	while(!isInserted && i < pos) {
-    		if (nodes[2*i+1] < nodes[i]) {
+    	while(!isInserted && !isLeaf(i)) {
+    		if (nodes[2*i+1] < nodes[i] && nodes[2*i+1] <= nodes[2*i+2]) {
     			swap(i, 2*i+1);
     			i = 2*i+1;
     		}
-    		else if (nodes[2*i+2] < nodes[i]) {
+    		else if (nodes[2*i+2] < nodes[i] && nodes[2*i+2] <= nodes[2*i+1]) {
     			swap(i, 2*i+2);
     			i = 2*i+2;
     		} 
@@ -146,6 +147,38 @@ public class BinaryHeap {
         }
     }
 
+    private String space(int x) {
+		StringBuilder res = new StringBuilder();
+		for (int i=0; i<x; i++) {
+			res.append(" ");
+		}
+		return res.toString();
+	}
+
+    /**
+	 * Print a nice visualisation of the binary heap as a hierarchy tree
+	 * 
+	 */	
+	public void lovelyPrinting(){
+		int nodeWidth = String.valueOf(nodes[0]).length();
+		int depth = 1+(int)(Math.log(nodes.length)/Math.log(2));
+		int index=0;
+		
+		for(int h = 1; h<=depth; h++){
+			int left = ((int) (Math.pow(2, depth-h-1)))*nodeWidth - nodeWidth/2;
+			int between = ((int) (Math.pow(2, depth-h))-1)*nodeWidth;
+			int i =0;
+			System.out.print(space(left));
+			while(i<Math.pow(2, h-1) && index<pos){
+				System.out.print(nodes[index] + space(between));
+				index++;
+				i++;
+			}
+			System.out.println("");
+		}
+		System.out.println("");
+	}
+    
     public static void main(String[] args) {
         BinaryHeap jarjarBin = new BinaryHeap();
         System.out.println(jarjarBin.isEmpty()+"\n");
@@ -159,9 +192,30 @@ public class BinaryHeap {
             jarjarBin.insert(rand);            
             k--;
         }
-     // A completer
-        System.out.println("\n" + jarjarBin);
+        
+        jarjarBin.lovelyPrinting();
         System.out.println(jarjarBin.test());
+        
+        System.out.println("\nSuppression du plus petit : " + jarjarBin.remove());
+        jarjarBin.lovelyPrinting();
+        System.out.println(jarjarBin.test());   
     }
-
+    
+    // Q6 : Comment utiliseriez-vous la structure de tas binaire dans votre mise en forme de l'algorithme de Primm ? 
+    // Quel opération faut-il ajouter dans la structure de tas binaire ? Quel gain en terme de complexité par rapport à votre algorithme ?
+    
+    /*
+     * On utiliserait le tas binaire pour trouver l'arête avec le poids le plus léger parmi les arêtes incidentes aux noeuds déjà parcourus.
+     * On teste si l'arête la plus légère est incidente à un noeud pas encore parcouru.
+     * Si c'est le cas, on ajoute ce noeud à la liste des noeuds parcouru, on ajoute ses arêtes incidentes au tas et on ajoute le poids
+     * de l'arête sélectionnée au poids total.
+     * Sinon, on passe à l'arête suivante.
+     *
+     * Il n'y a besoin que de retirer l'élément le plus léger et ajouter des éléments au tas, donc pas besoin d'ajouter d'opération.
+     * 
+     * Par rapport à un algorithme de Primm "brut" de complexité O(n²), cet algorithme proposerait une complexité en O(n*log m) :
+     * Pour chaque noeud (n), on regarde l'arête appropriée dans le tas binaire (log m). 
+     */
 }
+
+
