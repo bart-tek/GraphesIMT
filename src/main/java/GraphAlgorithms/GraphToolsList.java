@@ -4,10 +4,13 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.PriorityQueue;
 import java.util.Queue;
 import java.util.Set;
@@ -21,6 +24,7 @@ import AdjacencyList.DirectedGraph;
 import AdjacencyList.DirectedValuedGraph;
 import AdjacencyList.UndirectedGraph;
 import AdjacencyList.UndirectedValuedGraph;
+import Collection.Pair;
 import Collection.Triple;
 import Nodes.AbstractNode;
 import Nodes.DirectedNode;
@@ -164,7 +168,7 @@ public class GraphToolsList extends GraphTools {
 	}
 
 	public static void main(String[] args) {
-		int[][] Matrix = GraphTools.generateGraphData(10, 20, false, false, true, 100001);
+		int[][] Matrix = GraphTools.generateGraphData(10, 20, false, false, true, 110001);
 		GraphTools.afficherMatrix(Matrix);
 		UndirectedGraph<UndirectedNode> al = new UndirectedGraph<>(Matrix);
 		System.out.println(al);
@@ -200,5 +204,44 @@ public class GraphToolsList extends GraphTools {
 		
 //		System.out.println("Calcul des composantes fortement connexes :");
 //		System.out.println(getCompFortementConnexe((AbstractListGraph) al));
+		
+		DirectedValuedGraph dg = new DirectedValuedGraph(GraphTools.generateValuedGraphData(100, true, true, true, false, 100001));
+		
+		Pair<int[], List<DirectedNode>> ret = bellman(dg, dg.getNodeOfList(new DirectedNode(0)));
+		System.out.println(Arrays.toString(ret.getLeft()));
+		System.out.println(ret.getRight());
+	}
+	
+	public static Pair<int[], List<DirectedNode>> bellman(DirectedValuedGraph g, DirectedNode s) {
+		
+		int n = g.getNbNodes();
+		int[] values = new int[n];
+		List<DirectedNode> precedent = new ArrayList<>(n);
+		Queue<DirectedNode> noeudsEnCours = new LinkedList<>();
+		noeudsEnCours.add(s);
+		
+		// Initialisation
+		
+		for (int i = 0; i < n; i++) {
+			values[i] = Integer.MAX_VALUE;
+			precedent.add(null);
+		}
+		values [s.getLabel()] = 0;
+		precedent.set(s.getLabel(), s);
+		
+		for (int k = 1; k < n; k++) {
+			while(!noeudsEnCours.isEmpty() ) {
+				DirectedNode node = noeudsEnCours.remove();
+				for(Entry<DirectedNode, Integer> entry: node.getSuccs().entrySet()) {
+					noeudsEnCours.add(entry.getKey()); // TODO Gérer les cycles négatives
+					if(entry.getValue() + values[node.getLabel()]< values[entry.getKey().getLabel()]) {
+						values[entry.getKey().getLabel()]= entry.getValue() + values[node.getLabel()];
+						precedent.set(entry.getKey().getLabel() ,node);
+					}
+				}
+			}
+		}
+		
+		return new Pair<int[], List<DirectedNode>>(values, precedent);
 	}
 }
