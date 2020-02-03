@@ -164,7 +164,7 @@ public class GraphToolsList extends GraphTools {
 	}
 
 	public static void main(String[] args) {
-		int[][] Matrix = GraphTools.generateGraphData(100, 150, false, false, true, 100001);
+		int[][] Matrix = GraphTools.generateGraphData(10, 20, false, false, true, 100001);
 		GraphTools.afficherMatrix(Matrix);
 		UndirectedGraph<UndirectedNode> al = new UndirectedGraph<>(Matrix);
 		System.out.println(al);
@@ -182,8 +182,8 @@ public class GraphToolsList extends GraphTools {
 		gtl.explorerGrapheProfondeur((AbstractListGraph) al, nodes);
 		long durationProfondeur = System.nanoTime() - startTimeProfondeur;
 		System.out.println("Exploration du graphe en profondeur :");
-//		System.out.println("Fin : " + Arrays.toString(fin));
-//		System.out.println("Début :" + Arrays.toString(debut));
+		System.out.println("Fin : " + Arrays.toString(fin));
+		System.out.println("Début :" + Arrays.toString(debut));
 		
 		System.out.println("Durée d'exécution du parcours en profondeur : " + durationProfondeur + " ns\n");
 		// Pour un graphe orienté de 100 noeuds et 150 arc, on a un temps d'exécution de 527091 ns.
