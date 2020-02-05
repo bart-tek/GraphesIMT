@@ -85,35 +85,48 @@ public class GraphToolsList extends GraphTools {
 	}
 
 	// Calcule les composantes connexes du graphe
-	public void explorerGrapheLargeur(AbstractListGraph<AbstractNode> graph, AbstractNode s) {
+	public int[] explorerGrapheLargeur(AbstractListGraph<AbstractNode> graph, AbstractNode s) {
 		boolean mark[] = new boolean[graph.getNbNodes()];
-
+		int[] dist = new int[graph.getNbNodes()];
+		int currentDist = 0;
 		for (AbstractNode v : graph.getNodes()) {
 			mark[v.getLabel()] = false;
 		}
 		mark[s.getLabel()] = true;
-
+		dist[s.getLabel()] = 0;
+		boolean hasUnknownSuc = false;
 		Queue<AbstractNode> toVisit = new LinkedList<AbstractNode>();
 		toVisit.add(s);
 		while (!toVisit.isEmpty()) {
-//			System.out.println(toVisit.toString());
 			AbstractNode v = toVisit.poll();
+			hasUnknownSuc = false;
 			if (s instanceof DirectedNode) {
 				for (DirectedNode w : ((DirectedNode) v).getSuccs().keySet()) {
 					if (!mark[w.getLabel()]) {
+						if (!hasUnknownSuc) {
+							hasUnknownSuc = true;
+							currentDist++;
+						}
 						mark[w.getLabel()] = true;
 						toVisit.add(w);
+						dist[w.getLabel()] = currentDist;
 					}
 				}
 			} else {
 				for (UndirectedNode w : ((UndirectedNode) v).getNeighbours().keySet()) {
 					if (!mark[w.getLabel()]) {
+						if (!hasUnknownSuc) {
+							hasUnknownSuc = true;
+							currentDist++;
+						}
 						mark[w.getLabel()] = true;
 						toVisit.add(w);
+						dist[w.getLabel()] = currentDist;
 					}
 				}
 			}
 		}
+		return dist;
 	}
 
 	void explorerGrapheProfondeur(AbstractListGraph<AbstractNode> g, int[] nodes) {
@@ -140,11 +153,11 @@ public class GraphToolsList extends GraphTools {
 	public void calculComposanteFortementConnexe(AbstractListGraph<AbstractNode> g) {
 		if (g instanceof DirectedGraph) {
 			int[] nodes = new int[g.getNbNodes()];
-			
+
 			for (AbstractNode n : g.getNodes()) {
 				nodes[n.getLabel()] = n.getLabel();
 			}
-			
+
 			explorerGrapheProfondeur(g, nodes);
 			int[] f1 = fin;
 			SortedMap<Integer, Integer> nodesEnd = new TreeMap<>();
@@ -154,10 +167,10 @@ public class GraphToolsList extends GraphTools {
 			List<Integer> f1sorted = new ArrayList<>(nodesEnd.values());
 
 			Collections.reverse(f1sorted);
-			
+
 			int[] f1SortedTab = new int[f1sorted.size()];
-			
-			for (int i = 0 ; i < f1sorted.size() ; i++) {
+
+			for (int i = 0; i < f1sorted.size(); i++) {
 				f1SortedTab[i] = f1sorted.get(i);
 			}
 
@@ -172,76 +185,95 @@ public class GraphToolsList extends GraphTools {
 		GraphTools.afficherMatrix(Matrix);
 		UndirectedGraph<UndirectedNode> al = new UndirectedGraph<>(Matrix);
 		System.out.println(al);
-		
+
 		GraphToolsList gtl = new GraphToolsList();
-		
+
 		int[] nodes = new int[al.getNbNodes()];
-		
+
 		for (AbstractNode s : al.getNodes()) {
 			nodes[s.getLabel()] = s.getLabel();
 		}
-		
-		
+
 		long startTimeProfondeur = System.nanoTime();
 		gtl.explorerGrapheProfondeur((AbstractListGraph) al, nodes);
 		long durationProfondeur = System.nanoTime() - startTimeProfondeur;
 		System.out.println("Exploration du graphe en profondeur :");
 		System.out.println("Fin : " + Arrays.toString(fin));
 		System.out.println("Début :" + Arrays.toString(debut));
-		
+
 		System.out.println("Durée d'exécution du parcours en profondeur : " + durationProfondeur + " ns\n");
-		// Pour un graphe orienté de 100 noeuds et 150 arc, on a un temps d'exécution de 527091 ns.
-		
+		// Pour un graphe orienté de 100 noeuds et 150 arc, on a un temps d'exécution de
+		// 527091 ns.
+
 		System.out.println("Exploration du graphe en largeur :");
 		long startTimeLargeur = System.nanoTime();
 		gtl.explorerGrapheLargeur((AbstractListGraph) al, al.getNodes().get(0));
 		long durationLargeur = System.nanoTime() - startTimeLargeur;
-		
+
 		System.out.println("Durée d'exécution du parcours en largeur : " + durationLargeur + " ns\n");
-		// Pour un graphe orienté de 100 noeuds et 150 arc, on a un temps d'exécution de 2142581 ns.
-		
-		// Le parcours en largeur est donc environ 4 fois plus lent que le parcours en profondeur.
-		
+		// Pour un graphe orienté de 100 noeuds et 150 arc, on a un temps d'exécution de
+		// 2142581 ns.
+
+		// Le parcours en largeur est donc environ 4 fois plus lent que le parcours en
+		// profondeur.
+
 //		System.out.println("Calcul des composantes fortement connexes :");
 //		System.out.println(getCompFortementConnexe((AbstractListGraph) al));
-		
-		DirectedValuedGraph dg = new DirectedValuedGraph(GraphTools.generateValuedGraphData(100, true, true, true, false, 100001));
-		
-		Pair<int[], List<DirectedNode>> ret = bellman(dg, dg.getNodeOfList(new DirectedNode(0)));
+
+		DirectedValuedGraph dg = new DirectedValuedGraph(
+				GraphTools.generateValuedGraphData(15, false, false, true, false, 100001));
+
+		System.out.println(dg.toString());
+		Pair<int[], List<DirectedNode>> ret = bellman(dg, dg.getNodes().get(0));
 		System.out.println(Arrays.toString(ret.getLeft()));
 		System.out.println(ret.getRight());
 	}
-	
+
 	public static Pair<int[], List<DirectedNode>> bellman(DirectedValuedGraph g, DirectedNode s) {
-		
+
 		int n = g.getNbNodes();
 		int[] values = new int[n];
 		List<DirectedNode> precedent = new ArrayList<>(n);
-		Queue<DirectedNode> noeudsEnCours = new LinkedList<>();
-		noeudsEnCours.add(s);
-		
+
 		// Initialisation
-		
 		for (int i = 0; i < n; i++) {
-			values[i] = Integer.MAX_VALUE;
+			values[i] = 999999999;
 			precedent.add(null);
 		}
-		values [s.getLabel()] = 0;
+		values[s.getLabel()] = 0;
 		precedent.set(s.getLabel(), s);
-		
-		for (int k = 1; k < n; k++) {
-			while(!noeudsEnCours.isEmpty() ) {
-				DirectedNode node = noeudsEnCours.remove();
-				for(Entry<DirectedNode, Integer> entry: node.getSuccs().entrySet()) {
-					noeudsEnCours.add(entry.getKey()); // TODO Gérer les cycles négatives
-					if(entry.getValue() + values[node.getLabel()]< values[entry.getKey().getLabel()]) {
-						values[entry.getKey().getLabel()]= entry.getValue() + values[node.getLabel()];
-						precedent.set(entry.getKey().getLabel() ,node);
-					}
-				}
+		int[] distancesFromS = new GraphToolsList().explorerGrapheLargeur((AbstractListGraph) g, (AbstractNode) s);
+		System.out.println(Arrays.toString(distancesFromS));
+		Map<Integer, List<DirectedNode>> distMap = new HashMap<Integer, List<DirectedNode>>();
+
+		for (int i = 0; i < distancesFromS.length; i++) {
+			if (distMap.containsKey(distancesFromS[i])) {
+				distMap.get(distancesFromS[i]).add(g.getNodes().get(i));
+			} else {
+				List<DirectedNode> tmp = new ArrayList<DirectedNode>();
+				tmp.add(g.getNodes().get(i));
+				distMap.put(distancesFromS[i], tmp);
 			}
 		}
-		
+		for (int k = 0; k < n; k++) {
+			if (distMap.containsKey(k))
+				for (DirectedNode node : distMap.get(k)) {
+					for (Entry<DirectedNode, Integer> entry : node.getSuccs().entrySet()) {
+						if (entry.getValue() + values[node.getLabel()] < values[entry.getKey().getLabel()]) {
+							values[entry.getKey().getLabel()] = entry.getValue() + values[node.getLabel()];
+							precedent.set(entry.getKey().getLabel(), node);
+						}
+					}
+				}
+		}
+
+		DirectedNode node = g.getNodes().get((n + s.getLabel()) % n);
+		for (Entry<DirectedNode, Integer> entry : node.getSuccs().entrySet()) {
+			if (entry.getValue() + values[node.getLabel()] < values[entry.getKey().getLabel()]) {
+				System.out.println("/!\\ There is a negative cycle.");
+			}
+		}
+
 		return new Pair<int[], List<DirectedNode>>(values, precedent);
 	}
 }
