@@ -217,8 +217,8 @@ public class GraphToolsList extends GraphTools {
 		// Le parcours en largeur est donc environ 4 fois plus lent que le parcours en
 		// profondeur.
 
-//		System.out.println("Calcul des composantes fortement connexes :");
-//		System.out.println(getCompFortementConnexe((AbstractListGraph) al));
+		// System.out.println("Calcul des composantes fortement connexes :");
+		// System.out.println(getCompFortementConnexe((AbstractListGraph) al));
 
 		DirectedValuedGraph dg = new DirectedValuedGraph(
 				GraphTools.generateValuedGraphData(15, false, false, true, false, 100001));
@@ -227,25 +227,43 @@ public class GraphToolsList extends GraphTools {
 		Pair<int[], List<DirectedNode>> ret = bellman(dg, dg.getNodes().get(0));
 		System.out.println(Arrays.toString(ret.getLeft()));
 		System.out.println(ret.getRight());
+
+		testDijsktra();
+		
+		
 	}
 
+	private static void testDijsktra() {
+		DirectedValuedGraph dijTest = new DirectedValuedGraph(
+				GraphTools.generateValuedGraphData(5, false, true, true, false, 100001));
+
+		System.out.println(dijTest.toString());
+		Pair<int[], List<DirectedNode>> retDij = dijsktra(dijTest, dijTest.getNodes().get(0));
+		System.out.println(Arrays.toString(retDij.getLeft()));
+		System.out.println(retDij.getRight());
+	}
+
+	/**
+	 * Time complexity:  O(n*m)
+	 * Space complexity: O(2n + n²)
+	 */
 	public static Pair<int[], List<DirectedNode>> bellman(DirectedValuedGraph g, DirectedNode s) {
 
 		int n = g.getNbNodes();
 		int[] values = new int[n];
 		List<DirectedNode> precedent = new ArrayList<>(n);
+		Map<Integer, List<DirectedNode>> distMap = new HashMap<Integer, List<DirectedNode>>();
 
 		// Initialisation
 		for (int i = 0; i < n; i++) {
-			values[i] = 999999999;
+			values[i] = 999999999; // MAX_INTEGER overflowed for unknown reasons 
 			precedent.add(null);
 		}
 		values[s.getLabel()] = 0;
 		precedent.set(s.getLabel(), s);
 		int[] distancesFromS = new GraphToolsList().explorerGrapheLargeur((AbstractListGraph) g, (AbstractNode) s);
-		System.out.println(Arrays.toString(distancesFromS));
-		Map<Integer, List<DirectedNode>> distMap = new HashMap<Integer, List<DirectedNode>>();
 
+		// Order nodes by distance from S
 		for (int i = 0; i < distancesFromS.length; i++) {
 			if (distMap.containsKey(distancesFromS[i])) {
 				distMap.get(distancesFromS[i]).add(g.getNodes().get(i));
@@ -255,6 +273,7 @@ public class GraphToolsList extends GraphTools {
 				distMap.put(distancesFromS[i], tmp);
 			}
 		}
+		// k is the number of edge separating node from s.
 		for (int k = 0; k < n; k++) {
 			if (distMap.containsKey(k))
 				for (DirectedNode node : distMap.get(k)) {
@@ -266,7 +285,8 @@ public class GraphToolsList extends GraphTools {
 					}
 				}
 		}
-
+		
+		// If one step further changes the values then there is a negative cycle.
 		DirectedNode node = g.getNodes().get((n + s.getLabel()) % n);
 		for (Entry<DirectedNode, Integer> entry : node.getSuccs().entrySet()) {
 			if (entry.getValue() + values[node.getLabel()] < values[entry.getKey().getLabel()]) {
@@ -274,6 +294,50 @@ public class GraphToolsList extends GraphTools {
 			}
 		}
 
+		return new Pair<int[], List<DirectedNode>>(values, precedent);
+	}
+	
+	
+	/**
+	 * Time complexity:  O(n*m)
+	 * Space complexity: O(4*n)
+	 */
+	public static Pair<int[], List<DirectedNode>> dijsktra(DirectedValuedGraph g, DirectedNode s) {
+		
+		int n = g.getNbNodes();
+		boolean[] mark = new boolean[n];
+		int[] values = new int[n];
+		List<DirectedNode> precedent = new ArrayList<>(n);
+		
+		//Init
+		for (int i = 0; i < n; i++) {
+			values[i] = 999999999;
+			precedent.add(null);
+		}
+		values[s.getLabel()] = 0;
+		precedent.set(s.getLabel(), s);
+		
+		//SortedValues will give the lowest available value in log(n) time.
+		TreeMap<Integer, DirectedNode> sortedValues = new TreeMap<>();
+		sortedValues.put(0, s);
+		
+		while (!sortedValues.isEmpty()) {
+			Entry<Integer, DirectedNode> currentNode = sortedValues.firstEntry();
+			sortedValues.remove(currentNode.getKey());
+			mark[currentNode.getValue().getLabel()] = true;
+			for(Entry<DirectedNode, Integer> succ: currentNode.getValue().getSuccs().entrySet()) {
+				if(!mark[succ.getKey().getLabel()]) {
+					int potentialCost = succ.getValue()+currentNode.getKey();
+					int oldCost = values[succ.getKey().getLabel()];
+					if( potentialCost< oldCost) {
+						values[succ.getKey().getLabel()] = potentialCost;
+						sortedValues.put(potentialCost, succ.getKey());
+						precedent.set(succ.getKey().getLabel(), currentNode.getValue());
+						
+					}
+				}
+			}
+		}
 		return new Pair<int[], List<DirectedNode>>(values, precedent);
 	}
 }
