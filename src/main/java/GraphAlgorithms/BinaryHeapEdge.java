@@ -66,7 +66,7 @@ public class BinaryHeapEdge<A> {
 
 		while (!isInserted && !isLeaf(i)) {
 			// Check if only one child:
-			if (binh.size() < 2 * i + 2) {
+			if (binh.size()-1 < 2 * i + 2) {
 				if (binh.get(2 * i + 1).getThird() < binh.get(i).getThird()) {
 					swap(i, 2 * i + 1);
 					i = 2 * i + 1;
@@ -203,8 +203,7 @@ public class BinaryHeapEdge<A> {
 	public static void main(String[] args) {
 		BinaryHeapEdge<DirectedNode> jarjarBin = new BinaryHeapEdge<>();
 		System.out.println(jarjarBin.isEmpty() + "\n");
-		int k = 5;
-		int m = k;
+		int k = 17;
 		int min = 1;
 		int max = 201;
 		while (k > 0) {
@@ -214,6 +213,16 @@ public class BinaryHeapEdge<A> {
 		}
 
 		System.out.println("\nInsert");
+		jarjarBin.lovelyPrinting();
+		System.out.println(jarjarBin.test());
+
+		System.out.println("\nRemove");
+		jarjarBin.remove();
+		jarjarBin.lovelyPrinting();
+		System.out.println(jarjarBin.test());
+
+		System.out.println("\nRemove");
+		jarjarBin.remove();
 		jarjarBin.lovelyPrinting();
 		System.out.println(jarjarBin.test());
 
